@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <mmeta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+    <% if (user) { %>
+        <p> Welcome <%= user.username %> to your To Do App Profile</p>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <form id="taskForm" action="/tasks" method="POST">
+            <input type="text" id="taskInput" name="task" placeholder="Enter a new task" required>
+            
+            <select id="statusInput" name="status" placeholder="Select status" required>
+                <option value="pending">Pending</option>
+                <option value="done">Done</option>
+                <option value="deleted">Deleted</option>
+            </select>
+
+             <select id="statusInput" name="priority" placeholder="Select priority" required>
+                <option value="high">High</option>
+                <option value="meduim">Meduim</option>
+                <option value="low">Low</option>
+            </select>
+            
+            <button type="submit">Add Task</button>
+        </form>
+        <div class="filter">
+            <label for="statusFilter">Filter by status:</label>
+            <select id="statusFilter">
+                <option value="all" <%= selectedStatus === 'all' ? 'selected' : '' %>>All</option>
+                <option value="pending" <%= selectedStatus === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="done" <%= selectedStatus === 'done' ? 'selected' : '' %>>Done</option>
+                <option value="deleted" <%= selectedStatus === 'deleted' ? 'selected' : '' %>>Deleted</option>
+            </select>
+        </div>
+        <table id="taskTable">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+<tbody id="taskList">
+    <% tasks.forEach(function(task) { %>
+    <tr>
+        <form action="/tasks/<%= task._id %>?_method=PUT" method="POST">
+        <input type="hidden" name="_method" value="PUT">
+
+            <td>
+                <input type="text" name="task" value="<%= task.task %>">
+            </td>
+            <td>
+                <select name="status">
+                    <option value="pending" <%= task.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="done" <%= task.status === 'done' ? 'selected' : '' %>>Done</option>
+                    <option value="deleted" <%= task.status === 'deleted' ? 'selected' : '' %>>Deleted</option>
+                </select>
+            </td>
+            <td>
+                <select name="priority">
+                    <option value="high" <%= task.priority === 'high' ? 'selected' : '' %>>High</option>
+                    <option value="meduim" <%= task.priority === 'meduim' ? 'selected' : '' %>>Medium</option>
+                    <option value="low" <%= task.priority === 'low' ? 'selected' : '' %>>Low</option>
+                </select>
+            </td>
+            <td>
+                
+            <button type="submit">Update</button>
+        </form>
+            </td>
+        <td>
+            <form action="/tasks/<%= task._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="delete-button">Delete</button>
+            </form>
+        </td>
+    </tr>
+
+
+    <% }) %>
+                <% if (tasks.length === 0) { %>
+                    <tr>
+                        <td colspan="4">No tasks available.</td>
+                    </tr>
+                <% } %>
+                <% } else { %> 
+                     <p>You need to <a href="/login">Login</a> to view the tasks list.</p>
+                      <p>Not Registered? <a href="/signup">Sign up</a> here to access the To-Do App.</p>
+                <%}%> 
+            </tbody>
+        </table>
+    </div>
+   <script>
+  document.getElementById('statusFilter').addEventListener('change', function () {
+    const selectedStatus = this.value;
+    const url = selectedStatus === 'all' ? '/tasks' : `/tasks?status=${selectedStatus}`;
+    window.location.href = url;
+  });
+</script>
+</body>
+</html>
